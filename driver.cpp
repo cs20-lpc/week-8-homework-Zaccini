@@ -3,35 +3,37 @@
 using namespace std;
 
 int main() {
-    cout << "=== Testing with int ===\n";
     Stack<int>* listStack = StackFactory<int>::GetStack();     // LinkedListStack
     Stack<int>* arrayStack = StackFactory<int>::GetStack(3);   // ArrayStack
 
-    // Test push
+
     listStack->push(10);
     listStack->push(20);
+    listStack->push(30);
     arrayStack->push(10);
     arrayStack->push(20);
+    arrayStack->push(30);
 
-    // Test peek
     cout << "LinkedListStack top: " << listStack->peek() << endl;
     cout << "ArrayStack top: " << arrayStack->peek() << endl;
 
-    // Test pop
+    listStack->rotate(Stack<int>::LEFT);
+    arrayStack->rotate(Stack<int>::RIGHT);
+    cout << "After rotate left, LinkedLiarrayStacstStack top: " << listStack->peek() << endl;
+    cout << "After rotate right, ArrayStack top: " << arrayStack->peek() << endl;
+
     listStack->pop();
     arrayStack->pop();
     cout << "After pop, LinkedListStack top: " << listStack->peek() << endl;
     cout << "After pop, ArrayStack top: " << arrayStack->peek() << endl;
 
-    // Test empty behavior
-    listStack->pop();
-    arrayStack->pop();
-    cout << "Empty? (list): " << listStack->isEmpty() << "  (array): " << arrayStack->isEmpty() << endl;
+    listStack->clear();
+    arrayStack->clear();
 
-    // Test exception (optional)
     try { listStack->pop(); } 
-    catch (const string& msg) { cout << "Caught: " << msg << endl; }
+    catch (const string& msg) { cout << "Cleared linkedList: " << msg << endl; }
 
-    delete listStack;
-    delete arrayStack;
+    try { listStack->pop(); } 
+    catch (const string& msg) { cout << "Cleared ArrayStack: " << msg << endl; }
+
 }

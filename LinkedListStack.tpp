@@ -5,8 +5,7 @@
 template <typename T>
 LinkedListStack<T>::LinkedListStack(){
     this->length = 0;
-    head = nullptr;
-    last = nullptr;
+    top = nullptr;
 }
 
 
@@ -31,35 +30,40 @@ LinkedListStack<T>::~LinkedListStack() {
 
 template <typename T>
 void LinkedListStack<T>::clear() {
-    Node* current = head;
+    Node<T>* current = top;
     while (current != nullptr) {
-        Node* next = current->next;
+        Node<T>* next = current->next;
         delete current;
         current = next;
     }
-    head = nullptr;
-    last = nullptr;
+    top = nullptr;
     this->length = 0;
 }
 
 template <typename T>
 void LinkedListStack<T>::copy(const LinkedListStack<T>& copyObj) {
-    head = nullptr;
-    last = nullptr;
-    this->length = 0;
+    clear();  // remove existing data
 
-    Node* current = copyObj.head;
-    while (current != nullptr) {
-        Node* newNode = new Node(current->value);
-        if (head == nullptr) {
-            head = newNode;
-        } else {
-            last->next = newNode;
-        }
-        last = newNode;
-        ++this->length;
-        current = current->next;
-    }   
+    if (copyObj.top == nullptr) {
+        top = nullptr;
+        this->length = 0;
+        return;
+    }
+
+    Stack<T>* temp = new LinkedListStack<T>();
+    Node<T>* curr = copyObj.top;
+
+    while (curr != nullptr) {
+        temp->push(curr->data);
+        curr = curr->next;
+    }
+
+    while (!temp->isEmpty()) {
+        this->push(temp->peek());
+        temp->pop();
+    }
+
+    delete temp;
 }
 
 template <typename T>
@@ -78,8 +82,7 @@ T LinkedListStack<T>::peek() const {
         if (isEmpty()) {
         throw string("peek: error, stack is empty, cannot access the top");
     }
-
-    return last->data;
+    return top->data;
 }
 
 template <typename T>
@@ -87,42 +90,53 @@ void LinkedListStack<T>::pop() {
     if (isEmpty()) {
         throw string("pop: error, stack is empty, avoiding underflow");
     }
-    if (head == last){
-        delete head;
-        head =nullptr;
-        last = nullptr;
+    if (top->next == nullptr){
+        delete top;
+        top = nullptr;    
     } else {
-        Node* current = head;
-        while (current->next != last){
-            current = current->next
-        }
-        delete last;
-        last = current;
-        last->next = nullptr;
+        Node<T>* temp = top;
+        top = top->next;
+        delete temp;
     }
     --this->length;
 }
 
 template <typename T>
 void LinkedListStack<T>::push(const T& elem) {
-    if (isFull()) {
-        throw string("push: error, stack is full, avoiding overflow");
+    Node<T>* newNode = new Node<T>(elem);
+    if (this->length > 0){
+        newNode->next = top;
     }
-    Node* newNode = new Node(elem);
-    if (head == nullptr) {
-        head = newNode;
-        last = newNode;
-    } else {
-        last->next = newNode;
-        last = newNode;
-    }
+    top = newNode;
     ++this->length;
 }
 
 template <typename T>
 void LinkedListStack<T>::rotate(typename Stack<T>::Direction dir) {
+    if (this->length <= 1) return;
 
-    // TO DO: Implement rotate
+    if (dir == Stack<T>::LEFT) {
+        Node<T>* prev = nullptr;
+        Node<T>* curr = top;
+        while (curr->next != nullptr) {
+            prev = curr;
+            curr = curr->next;
+        }
+
+        prev->next = nullptr;
+        curr->next = top;
+        top = curr;
+    } else if (dir == Stack<T>::RIGHT) {
+        Node<T>* oldTop = top;
+        top = top->next;
+        oldTop->next = nullptr;
+
+        Node<T>* curr = top;
+        while (curr->next != nullptr) {
+            curr = curr->next;
+        }
+        curr->next = oldTop;
+    }
 }
 
 template <typename T>
